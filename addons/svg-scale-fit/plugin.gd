@@ -4,16 +4,8 @@ extends EditorPlugin
 var inspector_plugin: EditorInspectorPlugin \
 	= preload("res://addons/svg-scale-fit/inspector_plugin.gd").new()
 
-#func _enable_plugin(): start()
-func _enter_tree(): start()
-
-func start():
-	#print('[svg-auto-scale] Hello!!')
-	
+func _enter_tree() -> void:
 	add_inspector_plugin(inspector_plugin)
-	
 
-func _disable_plugin() -> void:
-	#print('[svg-auto-scale] Bye!!')
-	
+func _exit_tree() -> void:
 	remove_inspector_plugin(inspector_plugin)
