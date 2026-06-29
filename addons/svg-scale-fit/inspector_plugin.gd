@@ -8,7 +8,7 @@ func _can_handle(object):
 
 func _parse_begin(object):
 	var button := Button.new()
-	button.text = "Apply SVG Scale"
+	button.text = "Fit SVG Import Scale"
 	button.icon = scale_icon
 	button.pressed.connect(func():
 		apply_svg_scale(object as Sprite2D)
@@ -20,11 +20,15 @@ func apply_svg_scale(sprite_2d: Sprite2D):
 	if not tex:
 		push_error("There's no texture to apply scale")
 		return
-
+	
+	# get import path
 	var path: String
 	if tex is CompressedTexture2D:
 		path = tex.resource_path + ".import"
 	elif tex is AtlasTexture:
+		if not tex.atlas:
+			push_error("AtlasTexture has no atlas")
+			return
 		path = tex.atlas.resource_path + ".import"
 	else:
 		push_error("Unimplemented texture type")
@@ -36,12 +40,10 @@ func apply_svg_scale(sprite_2d: Sprite2D):
 		push_error("Error while reading config file: `", path, "`, error: ", err)
 		return
 	
-	var scale := cfg.get_value("params", "svg/scale", 1.0) as float
+	var scale := cfg.get_value("params", "svg/scale")
+	if scale == null:
+		push_error("Scale parameter not found in `", path, ".import`")
+		return
 	
-	# real apply
-	sprite_2d.scale = Vector2.ONE / scale
-	
-	#for section in cfg.get_sections():
-		#print("[", section, "]")
-		#for key in cfg.get_section_keys(section):
-			#print(key, " = ", cfg.get_value(section, key))
+	# apply scale relative to import scale
+	sprite_2d.scale = Vector2.ONE / float(scale)
